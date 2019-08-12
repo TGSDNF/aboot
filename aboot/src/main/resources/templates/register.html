@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title>INSPINIA | Register</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet"/>
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet"/>
+    <link th:href="@{/css/animate.css}" rel="stylesheet"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+      <script src="/js/jquery-2.1.1.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/layDate/laydate/laydate.js"></script>
+    <!-- iCheck -->
+    <script src="/js/plugins/iCheck/icheck.min.js"></script>
+<script type="text/javascript">
+ $(function(){
+	 laydate.render({
+		  elem: '#birthday' //指定元素
+		});
+	//获取光标事件
+	$("#userName").focus(function(){	
+		var uc = $("#userName").val();
+		if(uc == ""){
+			$("#up").html("用户名为4-12个（字母，数字，下划线，减号）");
+			return false; 
+		}
+	});
+	
+	//失去光标事件，发出请求，校验
+	$("#userName").blur(function(){		
+		var uc = $("#userName").val();
+		//判断是否为空		
+		if(uc == ""){
+			$("#up").html("请输入用户名");
+			return false; 
+		}
+		if(!(/^[a-zA-Z0-9_-]{4,12}$/.test(uc))){
+			$("#up").html("用户格式不对！");			
+			
+		}else{
+			//发送请求
+			$.ajax({
+				type:'post',
+				url:'check',
+				data:{userName:uc},
+				success:function(data){				
+						$("#up").html(data.msg);				
+				}
+			});
+		}
+	
+	
+	});
+ });
+</script>
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen   animated fadeInDown">
+        <div>
+            <div>
+                <h2 class="logo-name">MX</h2>
+            </div>
+            <h3>Register to MOXI</h3>
+            <p>Create account to see it in action.</p>
+            <form class="m-t" role="form" action="register" method="post">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="userName" name="userName" placeholder="Name" required=""/>
+                    	<span id="up"></span>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required=""/>
+                    	<span id="show"></span>
+                </div>
+                 <div class="form-group">
+                    <input type="email" class="form-control" name="email" placeholder="Email" required=""/>
+                </div>
+                <div class="form-group">                 
+                    <input type="text"  class="form-control" id="birthday" name="birthday" placeholder="Birthday" required=""/>                   
+                </div>
+                 <div class="form-group">
+                    <input type="text" pattern="^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$" class="form-control" name="phoneNumber" placeholder="PhoneNumber" required=""/>
+                </div>            
+                <div class="form-group">
+                        <div class="checkbox i-checks"><label> <input type="checkbox"/><i></i> Agree the terms and policy </label></div>
+                </div>
+                <button type="submit" class="btn btn-primary block full-width m-b">Register</button>
+
+                <p class="text-muted text-center"><small>Already have an account?</small></p>
+                <a class="btn btn-sm btn-white btn-block" th:href="login" href="login.html">Login</a>
+            </form>
+            <p class="m-t"> <small>Inspinia we app framework base on Bootstrap 3 &copy; 2014</small> </p>
+        </div>
+    </div>
+
+    <!-- Mainly scripts -->
+  
+    <script>
+        $(document).ready(function(){
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+            });
+        });
+    </script>
+</body>
+
+</html>
