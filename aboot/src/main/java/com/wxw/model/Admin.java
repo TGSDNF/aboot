@@ -14,6 +14,13 @@ public class Admin extends BaseObject {
 	private Date updateDate;
 	private int state;
 
+	@Override
+	public String toString() {
+		return "Admin [id=" + id + ", userName=" + userName + ", password=" + password + ", email=" + email
+				+ ", birthday=" + birthday + ", phoneNumber=" + phoneNumber + ", addDate=" + addDate + ", updateDate="
+				+ updateDate + ", state=" + state + "]";
+	}
+
 	public long getId() {
 		return id;
 	}

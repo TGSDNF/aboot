@@ -1,11 +1,15 @@
 package com.wxw.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +25,8 @@ public class AdminController {
 	@Autowired
 	private AdminService adminService;
 
+	@Resource
+    private RedisTemplate<String, List<Admin>> redisTemplate;
 	/**
 	 * 登录跳转
 	 * 
@@ -40,24 +46,38 @@ public class AdminController {
 	 * @param httpSession
 	 * @return
 	 */
+	
 	@PostMapping("/admin/login")
 	public String loginPost(Admin admin, Model model, HttpSession httpSession) {
-		Admin adminRes = adminService.findByNameAndPassword(admin);
-		if (adminRes != null) {
-			httpSession.setAttribute("admin", adminRes);
-			return "redirect:dashboard";
-		} else {
-			model.addAttribute("error", "用户名或密码错误，请重新登录！");
-			return "login";
-		}
+		 //去redis中拿数据
+		String key = "admin"+"--"+admin.getUserName();
+		Object user1 = redisTemplate.opsForValue().get(key);
+		 List<Admin> list = null;
+		 if(user1==null){	            
+	            list = adminService.findByNameAndPassword(admin);
+	            if (list != null&&!list.isEmpty()) {
+	            	redisTemplate.opsForValue().set(key,list);
+	    			httpSession.setAttribute("admin", list);
+	    			return "redirect:dashboard";
+	    		} else {
+	    			model.addAttribute("error", "用户名或密码错误，请重新登录！");
+	    			redisTemplate.delete(key);
+	    			return "login";
+	    		}
+	        }else{
+	            //如果有，就把从redis中拿到数据绑定到页面上
+	        	httpSession.setAttribute("admin", list);
+    			return "redirect:dashboard";
+	    
+	        }
 	}
 	//验证用户名是否重复
 	@ResponseBody
 	@PostMapping("/admin/check")
 	public Map<String ,Object> checkName(Admin admin) throws Exception{
 		Map<String, Object> map = new HashMap<>() ;
-		Admin admin1 = adminService.checkName(admin);
-		if(admin1 !=null) {
+		List<Admin> admin1 = adminService.checkName(admin);
+		if(admin1 !=null&&!admin1.isEmpty()) {
 			map.put("msg", "用户名已被使用");
 			map.put("code", "300");			
 		}else {
