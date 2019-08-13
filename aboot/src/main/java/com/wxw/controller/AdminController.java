@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.wxw.model.Admin;
 import com.wxw.service.AdminService;
-//sboot
+//sboot111
 @Controller
 public class AdminController {
 
